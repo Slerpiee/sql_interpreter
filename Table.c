@@ -293,7 +293,7 @@ Bool beforeFirst(THandle tableHandle)
 	case -1: /* beforeFirst */
 		return TRUE;
 	case 0:  /* after last */
-		return tableHandle->tableInfo.recordNumber == 0;
+		return (tableHandle->tableInfo.recordNumber == 0) ? TRUE : FALSE;
 	default:
 		return FALSE;
 	}
@@ -304,7 +304,7 @@ Bool afterLast(THandle tableHandle)
 	if (!tableHandle || tableHandle->fd < 0) return FALSE;
 	switch (tableHandle->currentPos){
 	case -1: /* beforeFirst */
-		return tableHandle->tableInfo.recordNumber == 0;
+		return (tableHandle->tableInfo.recordNumber == 0) ? TRUE : FALSE;
 	case 0:  /* after last */
 		return TRUE;
 	default:
