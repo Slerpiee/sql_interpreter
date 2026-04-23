@@ -14,18 +14,18 @@ TARGET = sql_interpreter
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS) $(LDFLAGS)
 
 %.o: %.c
-$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 %.o: %.cpp
-$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-rm -f $(OBJECTS) $(TARGET) *.dat
+	rm -f $(OBJECTS) $(TARGET) *.dat
 
 run: $(TARGET)
-./$(TARGET)
+	./$(TARGET)
 
 .PHONY: all clean run
