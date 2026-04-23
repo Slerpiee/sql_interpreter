@@ -650,7 +650,7 @@ static struct Table * CreateTableHandle (struct TableStruct * tableStruct)
 		return NULL;
 	}
 	for (i = 0; i < tableStruct->numOfFields; i++) {
-		strcpy(handle->pFieldStruct[i].fieldName, tableStruct->fieldsDef[i].name);
+		strcpy(handle->pFieldStruct[i].fieldName, tableStruct->fieldsDef[i].fieldName);
 		handle->pFieldStruct[i].type = tableStruct->fieldsDef[i].type;
 		switch(tableStruct->fieldsDef[i].type) {
 		case Long:
