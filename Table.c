@@ -42,7 +42,7 @@ static char FILE_SIGNATURE[] = "\033\032DataFile\033\032~~~";
 
 typedef struct {
 	char fieldName [MaxFieldNameLen];
-	enum FieldType type;
+	FieldType type;
 	long len;
 	char * pNewValue;
 	char * pEditValue;

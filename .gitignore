@@ -1,23 +1,24 @@
 ```
+# Compiled and build artifacts
 *.o
 *.obj
-*.a
-*.lib
+*.out
+*.exe
 *.dll
 *.so
-*.dylib
-*.exe
-*.out
+*.a
 
 # Dependencies
-node_modules/
 venv/
 .venv/
 __pycache__/
-.pytest_cache/
 .mypy_cache/
-dist/
+.pytest_cache/
+node_modules/
+
+# Build directories
 build/
+dist/
 target/
 .gradle/
 
@@ -25,47 +26,22 @@ target/
 *.log
 *.tmp
 *.swp
-*.swo
+
+# Editors
+.vscode/
+.idea/
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Editors
-.vscode/
-.idea/
-
-# System files
-.DS_Store
-Thumbs.db
-
 # Coverage
 coverage/
 htmlcov/
 .coverage
 
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+# System
+.DS_Store
+Thumbs.db
 ```
