@@ -3,5 +3,5 @@
 *.o
 *.obj
 *.out
-test_table
+test_sql
 ```
