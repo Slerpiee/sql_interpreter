@@ -35,7 +35,12 @@ enum Errors {
     BadFieldType,
     BadFieldLen,
     NoEditing,
-    BadPos
+    BadPos,
+    /* Additional error codes used internally */
+    BadPosition = BadPos,
+    CorruptedFile = CorruptedData,
+    CantWriteData = FileWriteError,
+    CantReadData = FileReadError
 };
 
 /* Maximum field name length */
