@@ -57,16 +57,16 @@ void testSQL(const std::string& sql, const std::string& description) {
         SQLCommand cmd = parser.parse();
         printAST(cmd);
         
-        std::cout << "\n✓ SUCCESS\n";
+        std::cout << "\nSUCCESS\n";
     } catch (const LexerException& e) {
-        std::cout << "\n✗ LEXER ERROR at line " << e.getLine() 
+        std::cout << "\nLEXER ERROR at line " << e.getLine() 
                   << ", column " << e.getColumn() << ": " << e.what() << "\n";
     } catch (const ParserException& e) {
         const Token& t = e.getToken();
-        std::cout << "\n✗ PARSER ERROR at line " << t.line 
+        std::cout << "\nPARSER ERROR at line " << t.line 
                   << ", column " << t.column << ": " << e.what() << "\n";
     } catch (const std::exception& e) {
-        std::cout << "\n✗ ERROR: " << e.what() << "\n";
+        std::cout << "\nERROR: " << e.what() << "\n";
     }
 }
 
@@ -162,47 +162,6 @@ int main() {
     std::cout << "ALL TESTS COMPLETED\n";
     std::cout << std::string(60, '=') << "\n";
 
-    // ============================================
-    // === ИНТЕРАКТИВНЫЙ РЕЖИМ (добавить сюда) ===
-    // ============================================
-    std::cout << "\n=== INTERACTIVE MODE (Ctrl+D / Ctrl+Z to exit) ===\n";
-    std::cout << "Enter SQL query: ";
-    std::string line;
-    
-    while (std::getline(std::cin, line)) {
-        if (line.empty()) {
-            std::cout << "Enter SQL query: ";
-            continue;
-        }
-        
-        try {
-            // 1. Запускаем Лексер и Парсер одной функцией
-            auto cmd = SQL::parseSQL(line);
-            
-            // 2. Показываем результат (работу Парсера)
-            std::cout << "✓ Parsed: ";
-            std::visit([](const auto& arg) {
-                std::cout << arg->toString();
-            }, cmd);
-            std::cout << "\n\nEnter SQL query: ";
-            
-        } catch (const SQL::LexerException& e) {
-            std::cerr << "✗ Lexer Error at line " << e.getLine() 
-                      << ", col " << e.getColumn() << ": " << e.what() << "\n\n";
-            std::cout << "Enter SQL query: ";
-        } catch (const SQL::ParserException& e) {
-            const Token& t = e.getToken();
-            std::cerr << "✗ Parser Error at line " << t.line 
-                      << ", col " << t.column << ": " << e.what() << "\n\n";
-            std::cout << "Enter SQL query: ";
-        } catch (const std::exception& e) {
-            std::cerr << "✗ Error: " << e.what() << "\n\n";
-            std::cout << "Enter SQL query: ";
-        }
-    }
-    
-    std::cout << "\nInteractive mode exited.\n";
-    // ============================================
     
     return 0;
 }
