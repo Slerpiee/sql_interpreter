@@ -16,6 +16,7 @@ const char* tokenTypeToString(TokenType type) {
         case TokenType::CREATE: return "CREATE";
         case TokenType::TABLE: return "TABLE";
         case TokenType::DROP: return "DROP";
+        case TokenType::AS: return "AS";
         case TokenType::IDENTIFIER: return "IDENTIFIER";
         case TokenType::STRING_LITERAL: return "STRING_LITERAL";
         case TokenType::INTEGER_LITERAL: return "INTEGER_LITERAL";
