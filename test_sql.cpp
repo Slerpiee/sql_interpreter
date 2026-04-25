@@ -80,79 +80,89 @@ int main() {
         "Simple SELECT with WHERE clause"
     );
     
-    // Тест 2: SELECT с несколькими условиями
+ 
     testSQL(
         "SELECT * FROM products WHERE price >= 100 AND stock > 0",
         "SELECT with multiple conditions"
     );
+
+    testSQL(
+        "SELECT fullname AS name FROM users",
+        "Select with AS"
+    );
+
+    testSQL(
+        "SELECT name AS u_name, surname AS u_surname FROM users",
+        "Select with Multiple AS"
+    );
     
-    // Тест 3: INSERT
+    
     testSQL(
         "INSERT INTO users (id, name, email) VALUES (1, 'John', 'john@example.com')",
         "INSERT with columns"
     );
     
-    // Тест 4: INSERT без указания колонок
+    
     testSQL(
         "INSERT INTO users VALUES (2, 'Jane', 'jane@test.com')",
         "INSERT without column list"
     );
     
-    // Тест 5: UPDATE
+    
     testSQL(
         "UPDATE users SET name = 'Bob', age = 25 WHERE id = 1",
         "UPDATE with multiple assignments"
     );
     
-    // Тест 6: DELETE
+    
     testSQL(
         "DELETE FROM users WHERE age < 18 OR status = 'inactive'",
         "DELETE with OR condition"
     );
     
-    // Тест 7: CREATE TABLE
+    
     testSQL(
         "CREATE TABLE users (id LONG, name TEXT(50), email TEXT(100))",
         "CREATE TABLE with different types"
     );
     
-    // Тест 8: DROP TABLE
+    
     testSQL(
         "DROP TABLE old_table",
         "DROP TABLE"
     );
     
-    // Тест 9: SELECT с таблицей.колонка
+    
     testSQL(
         "SELECT u.id, u.name FROM users u WHERE u.age > 21",
         "SELECT with table aliases"
     );
     
-    // Тест 10: Комментарии
+    
     testSQL(
         "-- Это комментарий\nSELECT id FROM test /* многострочный */ WHERE x = 5",
         "SQL with comments"
     );
     
-    // Тест 11: Ошибка - некорректный синтаксис
+    
     testSQL(
         "SELECT FROM users",
         "ERROR: Missing column list"
     );
     
-    // Тест 12: Ошибка - неизвестный токен
+    
     testSQL(
         "SELECT @invalid FROM users",
         "ERROR: Invalid character"
     );
     
-    // Тест 13: NULL значение
+    
     testSQL(
         "INSERT INTO users VALUES (3, NULL, 'test@test.com')",
         "INSERT with NULL value"
     );
     
-    // Тест 14: Разные операторы сравнения
+    
     testSQL(
         "SELECT * FROM items WHERE count != 0 AND price <> 100",
         "Different comparison operators (!= and <>)"
