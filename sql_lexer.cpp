@@ -24,7 +24,7 @@ static const std::unordered_map<std::string, TokenType> keywords = {
     {"NOT", TokenType::NOT}
 };
 
-// Лексер - разбивает входную строку на токены
+
 Lexer::Lexer(const std::string& input)
     : input(input), currentPos(0), currentLine(1), currentColumn(1) {}
 
