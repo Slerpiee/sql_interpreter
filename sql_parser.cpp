@@ -245,9 +245,16 @@ std::vector<SelectColumn> Parser::parseColumnList() {
             throw ParserException("Expected column name or '*'", currentToken());
         }
         
-        // Опциональный псевдоним колонки или таблица без точки
+        // Опциональный псевдоним колонки с AS
         // Проверяем, не является ли следующее слово ключевым словом FROM
-        if (check(TokenType::IDENTIFIER)) {
+        if (check(TokenType::AS)) {
+            advance(); // пропускаем AS
+            if (!check(TokenType::IDENTIFIER)) {
+                throw ParserException("Expected alias name after AS", currentToken());
+            }
+            col.alias = currentToken().value;
+            advance();
+        } else if (check(TokenType::IDENTIFIER)) {
             std::string upperVal = currentToken().value;
             for (char& c : upperVal) c = std::toupper(static_cast<unsigned char>(c));
             

@@ -21,7 +21,8 @@ static const std::unordered_map<std::string, TokenType> keywords = {
     {"DROP", TokenType::DROP},
     {"AND", TokenType::AND},
     {"OR", TokenType::OR},
-    {"NOT", TokenType::NOT}
+    {"NOT", TokenType::NOT},
+    {"AS", TokenType::AS}
 };
 
 

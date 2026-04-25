@@ -20,6 +20,7 @@ enum class TokenType {
     CREATE,
     TABLE,
     DROP,
+    AS,
     
     // Идентификаторы и литералы
     IDENTIFIER,
