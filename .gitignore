@@ -1,25 +1,67 @@
 ```
-# Compiled and binary files
+# Compiled/binary files
 *.o
 *.obj
 *.out
-sql_executor_test
-sql_demo
+debug_lexer
+debug_parser
+debug_parser2
+debug_parser3
+debug_parser4
+debug_parser5
+debug_parser6
 
 # Dependencies
-build/
+node_modules/
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
 dist/
+build/
+target/
+.gradle/
 
-# Logs and temp files
-*.log
-*.tmp
-
-# Editors
+# Editor/IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
+*.tmp
 
-# Environment
+# System files
+.DS_Store
+Thumbs.db
 .env
 .env.local
 *.env.*
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
 ```
