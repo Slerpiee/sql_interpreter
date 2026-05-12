@@ -562,6 +562,11 @@ SQLCommand Parser::parseDelete() {
 std::vector<ColumnDef> Parser::parseColumnDefs() {
     std::vector<ColumnDef> columns;
     
+    // Проверяем, что мы действительно внутри скобок
+    if (!check(TokenType::IDENTIFIER)) {
+        throw ParserException("Expected column definition", currentToken());
+    }
+    
     do {
         ColumnDef col;
         col.size = 0;
