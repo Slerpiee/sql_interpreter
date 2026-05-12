@@ -178,6 +178,6 @@ private:
 // Функция для удобного парсинга строки
 SQLCommand parseSQL(const std::string& sql);
 
-} // namespace SQL
+}
 
-#endif // SQL_PARSER_H
+#endif

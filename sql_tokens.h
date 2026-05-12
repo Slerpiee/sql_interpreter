@@ -20,6 +20,7 @@ enum class TokenType {
     CREATE,
     TABLE,
     DROP,
+    AS,
     
     // Идентификаторы и литералы
     IDENTIFIER,
@@ -64,6 +65,6 @@ struct Token {
 // Функция для получения строкового представления типа токена
 const char* tokenTypeToString(TokenType type);
 
-} // namespace SQL
+}
 
 #endif // SQL_TOKENS_H

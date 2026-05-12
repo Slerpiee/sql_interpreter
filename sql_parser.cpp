@@ -148,6 +148,7 @@ std::string DropTableStmt::toString() const {
 Parser::Parser(const std::vector<Token>& tokens)
     : tokens(tokens), currentPos(0) {}
 
+// Получить текущий токен
 const Token& Parser::currentToken() const {
     if (currentPos >= tokens.size()) {
         static Token endToken(TokenType::END_OF_INPUT);
@@ -156,22 +157,26 @@ const Token& Parser::currentToken() const {
     return tokens[currentPos];
 }
 
+// Получить предыдущий токен
 const Token& Parser::previousToken() const {
     static Token dummy(TokenType::UNKNOWN);
     if (currentPos == 0) return dummy;
     return tokens[currentPos - 1];
 }
 
+// Перейти к следующему токену
 void Parser::advance() {
     if (!isEnd()) {
         currentPos++;
     }
 }
 
+// Проверить тип текущего токена
 bool Parser::check(TokenType type) const {
     return currentToken().type == type;
 }
 
+// Ожидать токен определенного типа
 Token Parser::expect(TokenType type, const std::string& errorMsg) {
     if (!check(type)) {
         throw ParserException(errorMsg, currentToken());
@@ -181,6 +186,7 @@ Token Parser::expect(TokenType type, const std::string& errorMsg) {
     return token;
 }
 
+// Распарсить и вернуть команду
 SQLCommand Parser::parse() {
     if (isEnd()) {
         throw ParserException("Empty input", currentToken());
@@ -238,10 +244,18 @@ std::vector<SelectColumn> Parser::parseColumnList() {
         } else {
             throw ParserException("Expected column name or '*'", currentToken());
         }
+
         
-        // Опциональный псевдоним колонки или таблица без точки
-        // Проверяем, не является ли следующее слово ключевым словом FROM
-        if (check(TokenType::IDENTIFIER)) {
+        
+        
+        if (check(TokenType::AS)) {
+            advance(); //пропускаем AS
+            if (!check(TokenType::IDENTIFIER)) {
+                throw ParserException("Expected alias name after AS", currentToken());
+            }
+            col.alias = currentToken().value;
+            advance();
+        } else if (check(TokenType::IDENTIFIER)) {
             std::string upperVal = currentToken().value;
             for (char& c : upperVal) c = std::toupper(static_cast<unsigned char>(c));
             
@@ -624,4 +638,4 @@ SQLCommand parseSQL(const std::string& sql) {
     return parser.parse();
 }
 
-} // namespace SQL
+}

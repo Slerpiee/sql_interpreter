@@ -73,6 +73,6 @@ private:
     static bool isAlphaNumeric(char c);
 };
 
-} // namespace SQL
+}
 
-#endif // SQL_LEXER_H
+#endif

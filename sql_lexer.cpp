@@ -21,12 +21,15 @@ static const std::unordered_map<std::string, TokenType> keywords = {
     {"DROP", TokenType::DROP},
     {"AND", TokenType::AND},
     {"OR", TokenType::OR},
-    {"NOT", TokenType::NOT}
+    {"NOT", TokenType::NOT},
+    {"AS", TokenType::AS}
 };
+
 
 Lexer::Lexer(const std::string& input)
     : input(input), currentPos(0), currentLine(1), currentColumn(1) {}
 
+// Получить текущий символ
 char Lexer::currentChar() const {
     if (currentPos >= input.length()) {
         return '\0';
@@ -34,6 +37,7 @@ char Lexer::currentChar() const {
     return input[currentPos];
 }
 
+// Перейти к следующему символу
 void Lexer::advance() {
     if (currentPos < input.length()) {
         if (input[currentPos] == '\n') {
@@ -46,18 +50,22 @@ void Lexer::advance() {
     }
 }
 
+// Проверить, является ли символ буквой
 bool Lexer::isAlpha(char c) {
     return std::isalpha(static_cast<unsigned char>(c)) || c == '_';
 }
 
+// Проверить, является ли символ цифрой
 bool Lexer::isDigit(char c) {
     return std::isdigit(static_cast<unsigned char>(c));
 }
 
+// Проверить, является ли символ alphanumeric
 bool Lexer::isAlphaNumeric(char c) {
     return isAlpha(c) || isDigit(c);
 }
 
+// Пропустить пробельные символы и комментарии
 void Lexer::skipWhitespace() {
     while (true) {
         char c = currentChar();
@@ -95,6 +103,7 @@ void Lexer::skipWhitespace() {
     }
 }
 
+// Считать идентификатор или ключевое слово
 Token Lexer::readIdentifier() {
     int startLine = currentLine;
     int startCol = currentColumn;
@@ -120,6 +129,7 @@ Token Lexer::readIdentifier() {
     return Token(TokenType::IDENTIFIER, value, startLine, startCol);
 }
 
+// Считать числовой литерал
 Token Lexer::readNumber() {
     int startLine = currentLine;
     int startCol = currentColumn;
@@ -133,6 +143,7 @@ Token Lexer::readNumber() {
     return Token(TokenType::INTEGER_LITERAL, value, startLine, startCol);
 }
 
+// Считать строковый литерал
 Token Lexer::readString() {
     int startLine = currentLine;
     int startCol = currentColumn;
@@ -162,11 +173,13 @@ Token Lexer::readString() {
     return Token(TokenType::STRING_LITERAL, value, startLine, startCol);
 }
 
+// Создать токен с текущей позицией
 Token Lexer::makeToken(TokenType type, const std::string& value) {
     return Token(type, value.empty() ? std::string(1, currentChar()) : value, 
                  currentLine, currentColumn);
 }
 
+// Получить следующий токен
 Token Lexer::nextToken() {
     skipWhitespace();
     
@@ -249,6 +262,7 @@ Token Lexer::nextToken() {
     }
 }
 
+// Получить все токены
 std::vector<Token> Lexer::tokenize() {
     std::vector<Token> tokens;
     
@@ -263,4 +277,4 @@ std::vector<Token> Lexer::tokenize() {
     return tokens;
 }
 
-} // namespace SQL
+}
