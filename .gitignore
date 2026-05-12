@@ -1,67 +1,18 @@
 ```
-# Compiled/binary files
+# Compiled and build artifacts
 *.o
 *.obj
 *.out
-debug_lexer
-debug_parser
-debug_parser2
-debug_parser3
-debug_parser4
-debug_parser5
-debug_parser6
-
-# Dependencies
-node_modules/
-venv/
-.venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-dist/
-build/
-target/
-.gradle/
-
-# Editor/IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# System files
-.DS_Store
-Thumbs.db
-.env
-.env.local
-*.env.*
-
-# Logs
-*.log
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
+debug_parser2_test
+debug_parser3_test.cpp
+debug_parser4_test
+debug_parser4_test.cpp
+debug_parser5_test
+debug_parser5_test.cpp
+debug_parser6_test
+debug_parser6_test.cpp
+debug_parser_test
+debug_parser_test.cpp
+debug_test
+debug_test.cpp
 ```
