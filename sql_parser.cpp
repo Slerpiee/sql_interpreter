@@ -248,8 +248,9 @@ std::vector<SelectColumn> Parser::parseColumnList() {
         
         
         
+        // Проверяем AS или неявный alias
         if (check(TokenType::AS)) {
-            advance(); //пропускаем AS
+            advance(); // пропускаем AS
             if (!check(TokenType::IDENTIFIER)) {
                 throw ParserException("Expected alias name after AS", currentToken());
             }
