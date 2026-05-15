@@ -5,9 +5,6 @@
 #include "_Table.h"
 #include <cstring>
 
-// ─────────────────────────────────────────────────────────────
-//  Exception hierarchy
-// ─────────────────────────────────────────────────────────────
 class TableException : public std::runtime_error {
 public:
     explicit TableException(const std::string& msg) : std::runtime_error(msg) {}
@@ -26,21 +23,15 @@ class TableIOException        : public TableException {
 public: using TableException::TableException;
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Field description (for CREATE TABLE)
-// ─────────────────────────────────────────────────────────────
 struct ColumnDef {
     std::string name;
     enum FieldType type;
-    long textLen = 0; // only for Text fields
+    long textLen = 0;
 
     static ColumnDef longCol(const std::string& n)                { return {n, Long, 0}; }
     static ColumnDef textCol(const std::string& n, long len)      { return {n, Text, len}; }
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Value variant (Long or Text)
-// ─────────────────────────────────────────────────────────────
 struct Value {
     enum FieldType type;
     long   longVal = 0;
@@ -54,9 +45,6 @@ struct Value {
     }
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Row: a map-like ordered container of (name → value)
-// ─────────────────────────────────────────────────────────────
 struct Row {
     std::vector<std::string> columns;
     std::vector<Value>       values;
@@ -75,22 +63,15 @@ struct Row {
     }
 };
 
-// ─────────────────────────────────────────────────────────────
-//  ResultSet returned to the client
-// ─────────────────────────────────────────────────────────────
 struct ResultSet {
     std::vector<std::string> columns;
     std::vector<Row>         rows;
-    std::string              message; // for non-SELECT statements
+    std::string              message;
     int                      affected = 0;
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Table – RAII wrapper around THandle
-// ─────────────────────────────────────────────────────────────
 class Table {
 public:
-    // ── static factory / lifecycle ──────────────────────────
     static void create(const std::string& name,
                        const std::vector<ColumnDef>& cols) {
         std::vector<FieldDef> fds(cols.size());
@@ -118,11 +99,9 @@ public:
         if (handle_) closeTable(handle_);
     }
 
-    // Non-copyable, movable
     Table(const Table&) = delete;
     Table& operator=(const Table&) = delete;
 
-    // ── column introspection ────────────────────────────────
     std::vector<std::string> columnNames() const {
         unsigned n = 0;
         getFieldsNum(handle_, &n);
@@ -141,14 +120,12 @@ public:
         return t;
     }
 
-    // ── cursor navigation ───────────────────────────────────
     bool first()    { return moveFirst(handle_)    == OK && !isBeforeFirst(); }
     bool last()     { return moveLast(handle_)     == OK && !isAfterLast(); }
     bool next()     { return moveNext(handle_)     == OK && !isAfterLast(); }
     bool isAfterLast()   const { return afterLast(handle_)   == TRUE; }
     bool isBeforeFirst() const { return beforeFirst(handle_) == TRUE; }
 
-    // ── read current row ─────────────────────────────────────
     Row currentRow() const {
         Row row;
         auto cols = columnNames();
@@ -168,7 +145,6 @@ public:
         return row;
     }
 
-    // ── insert a new row ─────────────────────────────────────
     void insert(const Row& row) {
         checkOK(::createNew(handle_));
         for (size_t i = 0; i < row.columns.size(); ++i) {
@@ -184,7 +160,6 @@ public:
         checkOK(::insertzNew(handle_));
     }
 
-    // ── update current row (caller must iterate) ─────────────
     void updateCurrent(const std::vector<std::string>& cols,
                        const std::vector<Value>& vals) {
         checkOK(::startEdit(handle_));
@@ -198,7 +173,6 @@ public:
         checkOK(::finishEdit(handle_));
     }
 
-    // ── delete current row ───────────────────────────────────
     void deleteCurrent() {
         checkOK(::deleteRec(handle_));
     }
