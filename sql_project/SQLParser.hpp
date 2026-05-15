@@ -9,17 +9,11 @@
 #include <sstream>
 #include <memory>
 
-// ─────────────────────────────────────────────────────────────
-//  Parse exception
-// ─────────────────────────────────────────────────────────────
 class ParseException : public std::runtime_error {
 public:
     explicit ParseException(const std::string& msg) : std::runtime_error("Parse error: " + msg) {}
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Tokenizer
-// ─────────────────────────────────────────────────────────────
 enum class TokType {
     IDENT, NUMBER, STRING,
     COMMA, LPAREN, RPAREN, STAR, SEMICOLON, EQ, NEQ, LT, GT, LE, GE,
@@ -84,11 +78,11 @@ private:
     void skipWS() { while (pos_<src_.size() && std::isspace(src_[pos_])) pos_++; }
 
     Token readString() {
-        pos_++; // skip opening '
+        pos_++;
         std::string val;
         while (pos_<src_.size() && src_[pos_]!='\'') val+=src_[pos_++];
         if (pos_>=src_.size()) throw ParseException("Unterminated string literal");
-        pos_++; // skip closing '
+        pos_++;
         return {TokType::STRING, val};
     }
 
@@ -102,7 +96,6 @@ private:
     Token readIdent() {
         std::string val;
         while (pos_<src_.size() && (std::isalnum(src_[pos_])||src_[pos_]=='_')) val+=src_[pos_++];
-        // classify keywords
         std::string upper = val;
         std::transform(upper.begin(),upper.end(),upper.begin(),::toupper);
         if (upper=="AND") return {TokType::AND, upper};
@@ -112,54 +105,43 @@ private:
     }
 };
 
-// ─────────────────────────────────────────────────────────────
-//  AST nodes
-// ─────────────────────────────────────────────────────────────
 using LiteralValue = std::variant<long, std::string>;
 
-struct CondExpr; // forward
+struct CondExpr;
 
-// A single comparison: col OP literal
 struct Comparison {
     std::string column;
-    std::string op; // =, <>, <, >, <=, >=
+    std::string op;
     LiteralValue value;
 };
 
-// Condition tree
 struct CondExpr {
     enum class Kind { Cmp, And, Or, Not } kind;
     std::optional<Comparison> cmp;
-    std::shared_ptr<CondExpr> left, right; // for AND/OR
-    std::shared_ptr<CondExpr> child;       // for NOT
+    std::shared_ptr<CondExpr> left, right;
+    std::shared_ptr<CondExpr> child;
 };
 
-// Column definition for CREATE TABLE
 struct ColDefAST {
     std::string name;
-    std::string type;   // "LONG" or "TEXT"
+    std::string type;
     int         len = 0;
 };
 
-// Assignment for UPDATE SET
 struct Assignment {
     std::string column;
     LiteralValue value;
 };
 
-// SELECT columns
 struct SelectCols {
     bool star = false;
     std::vector<std::string> names;
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Statement variants
-// ─────────────────────────────────────────────────────────────
 struct SelectStmt {
     SelectCols cols;
     std::string table;
-    std::shared_ptr<CondExpr> where; // nullptr = no WHERE
+    std::shared_ptr<CondExpr> where;
 };
 
 struct InsertStmt {
@@ -193,9 +175,6 @@ using Statement = std::variant<
     CreateTableStmt, DropTableStmt
 >;
 
-// ─────────────────────────────────────────────────────────────
-//  Parser
-// ─────────────────────────────────────────────────────────────
 class SQLParser {
 public:
     explicit SQLParser(const std::string& sql) {
@@ -206,7 +185,6 @@ public:
 
     Statement parse() {
         auto stmt = parseStatement();
-        // optional semicolon
         if (cur().type == TokType::SEMICOLON) advance();
         if (cur().type != TokType::END)
             throw ParseException("Unexpected token after statement: '" + cur().value + "'");
@@ -227,7 +205,6 @@ private:
         return advance();
     }
 
-    // case-insensitive ident check
     bool isKeyword(const std::string& kw) const {
         if (cur().type != TokType::IDENT) return false;
         std::string u = cur().value;
@@ -244,7 +221,6 @@ private:
         return u;
     }
 
-    // ── statement dispatcher ─────────────────────────────────
     Statement parseStatement() {
         if (cur().type != TokType::IDENT)
             throw ParseException("Expected SQL keyword, got '" + cur().value + "'");
@@ -258,7 +234,6 @@ private:
         throw ParseException("Unknown statement: '" + cur().value + "'");
     }
 
-    // ── SELECT ───────────────────────────────────────────────
     SelectStmt parseSelect() {
         expectKW("SELECT");
         SelectCols cols;
@@ -274,7 +249,6 @@ private:
         return {cols, tbl, where};
     }
 
-    // ── INSERT ───────────────────────────────────────────────
     InsertStmt parseInsert() {
         expectKW("INSERT"); expectKW("INTO");
         std::string tbl = expect(TokType::IDENT,"table name").value;
@@ -293,7 +267,6 @@ private:
         return {tbl, cols, vals};
     }
 
-    // ── UPDATE ───────────────────────────────────────────────
     UpdateStmt parseUpdate() {
         expectKW("UPDATE");
         std::string tbl = expect(TokType::IDENT,"table name").value;
@@ -312,7 +285,6 @@ private:
         return {col, parseLiteral()};
     }
 
-    // ── DELETE ───────────────────────────────────────────────
     DeleteStmt parseDelete() {
         expectKW("DELETE"); expectKW("FROM");
         std::string tbl = expect(TokType::IDENT,"table name").value;
@@ -321,7 +293,6 @@ private:
         return {tbl, where};
     }
 
-    // ── CREATE TABLE ─────────────────────────────────────────
     CreateTableStmt parseCreate() {
         expectKW("CREATE"); expectKW("TABLE");
         std::string tbl = expect(TokType::IDENT,"table name").value;
@@ -348,13 +319,11 @@ private:
         return {name, type, len};
     }
 
-    // ── DROP TABLE ───────────────────────────────────────────
     DropTableStmt parseDrop() {
         expectKW("DROP"); expectKW("TABLE");
         return {expect(TokType::IDENT,"table name").value};
     }
 
-    // ── Condition expression (AND/OR/NOT/comparison) ─────────
     std::shared_ptr<CondExpr> parseCondExpr() { return parseOr(); }
 
     std::shared_ptr<CondExpr> parseOr() {
@@ -397,7 +366,6 @@ private:
     }
 
     std::shared_ptr<CondExpr> parseCmp() {
-        // handle sub-expression in parens
         if (check(TokType::LPAREN)) {
             advance();
             auto e = parseCondExpr();
@@ -429,7 +397,6 @@ private:
         if (check(TokType::NUMBER)) return (long)std::stol(advance().value);
         if (check(TokType::STRING)) return advance().value;
         if (check(TokType::IDENT)) {
-            // allow bare identifiers as string values (e.g. status = active)
             return advance().value;
         }
         throw ParseException("Expected literal value, got '" + cur().value + "'");
