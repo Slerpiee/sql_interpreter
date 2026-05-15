@@ -12,9 +12,6 @@ public:
     explicit SQLExecutionException(const std::string& m) : std::runtime_error("Execution error: " + m) {}
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Condition evaluator
-// ─────────────────────────────────────────────────────────────
 class CondEvaluator {
 public:
     static bool eval(const std::shared_ptr<CondExpr>& expr, const Row& row) {
@@ -61,12 +58,8 @@ private:
     }
 };
 
-// ─────────────────────────────────────────────────────────────
-//  SQLServer – receives SQL string, returns ResultSet
-// ─────────────────────────────────────────────────────────────
 class SQLServer {
 public:
-    // Execute a SQL string; throws on error
     ResultSet execute(const std::string& sql) {
         SQLParser parser(sql);
         Statement stmt = parser.parse();
@@ -74,7 +67,6 @@ public:
     }
 
 private:
-    // ── visitors ─────────────────────────────────────────────
     ResultSet dispatch(const SelectStmt& s)      { return execSelect(s); }
     ResultSet dispatch(const InsertStmt& s)      { return execInsert(s); }
     ResultSet dispatch(const UpdateStmt& s)      { return execUpdate(s); }
@@ -82,7 +74,6 @@ private:
     ResultSet dispatch(const CreateTableStmt& s) { return execCreate(s); }
     ResultSet dispatch(const DropTableStmt& s)   { return execDrop(s); }
 
-    // ── SELECT ───────────────────────────────────────────────
     ResultSet execSelect(const SelectStmt& stmt) {
         Table tbl(stmt.table);
         auto allCols = tbl.columnNames();
@@ -90,7 +81,6 @@ private:
         std::vector<std::string> selCols = stmt.cols.star
             ? allCols : stmt.cols.names;
 
-        // validate requested columns
         for (auto& c : selCols) {
             bool found = std::find(allCols.begin(),allCols.end(),c) != allCols.end();
             if (!found) throw SQLExecutionException("Unknown column: " + c);
@@ -99,7 +89,7 @@ private:
         ResultSet rs;
         rs.columns = selCols;
 
-        if (!tbl.first()) return rs; // empty table
+        if (!tbl.first()) return rs;
 
         do {
             Row full = tbl.currentRow();
@@ -115,7 +105,6 @@ private:
         return rs;
     }
 
-    // ── INSERT ───────────────────────────────────────────────
     ResultSet execInsert(const InsertStmt& stmt) {
         Table tbl(stmt.table);
         auto allCols = tbl.columnNames();
@@ -141,7 +130,6 @@ private:
             }
         }
 
-        // fill missing columns with defaults
         for (auto& c : allCols) {
             if (!row.get(c)) {
                 if (tbl.columnType(c)==Long) row.set(c, Value::fromLong(0));
@@ -156,12 +144,10 @@ private:
         return rs;
     }
 
-    // ── UPDATE ───────────────────────────────────────────────
     ResultSet execUpdate(const UpdateStmt& stmt) {
         Table tbl(stmt.table);
         auto allCols = tbl.columnNames();
 
-        // Validate assignment columns & build typed values
         std::vector<std::string> cols;
         std::vector<Value> vals;
         for (auto& a : stmt.assignments) {
@@ -185,10 +171,6 @@ private:
         int count = 0;
         if (!tbl.first()) { ResultSet rs; rs.message="0 rows updated"; return rs; }
 
-        // Collect positions to update (avoid cursor invalidation)
-        // We iterate, flag matches, then update in-place via startEdit/finishEdit
-        // Since Table iterates forward and deleteRec/finishEdit don't reposition,
-        // we can update current record safely.
         do {
             Row full = tbl.currentRow();
             if (!CondEvaluator::eval(stmt.where, full)) continue;
@@ -202,16 +184,12 @@ private:
         return rs;
     }
 
-    // ── DELETE ───────────────────────────────────────────────
     ResultSet execDelete(const DeleteStmt& stmt) {
         Table tbl(stmt.table);
         int count = 0;
 
         if (!tbl.first()) { ResultSet rs; rs.message="0 rows deleted"; return rs; }
 
-        // Collect all rows matching condition, then delete
-        // deleteRec + moveNext works correctly per the C driver semantics:
-        // after deleteRec the cursor logically moves; we call next manually.
         bool hasMore = true;
         while (hasMore) {
             Row full = tbl.currentRow();
@@ -219,7 +197,6 @@ private:
             if (matches) {
                 tbl.deleteCurrent();
                 count++;
-                // after delete, try to get next
                 hasMore = tbl.next();
             } else {
                 hasMore = tbl.next();
@@ -232,7 +209,6 @@ private:
         return rs;
     }
 
-    // ── CREATE TABLE ─────────────────────────────────────────
     ResultSet execCreate(const CreateTableStmt& stmt) {
         std::vector<ColumnDef> cols;
         for (auto& c : stmt.cols) {
@@ -249,7 +225,6 @@ private:
         return rs;
     }
 
-    // ── DROP TABLE ───────────────────────────────────────────
     ResultSet execDrop(const DropTableStmt& stmt) {
         Table::drop(stmt.table);
         ResultSet rs;
