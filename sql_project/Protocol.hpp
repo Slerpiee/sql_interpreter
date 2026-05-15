@@ -5,11 +5,6 @@
 #include <stdexcept>
 #include <cstdint>
 
-/*
-  Simple framing protocol over pipes (or any fd pair):
-  Each message is:  [ uint32_t length ][ char[] payload ]
-  Strings are UTF-8 / ASCII.
-*/
 
 class ProtocolException : public std::runtime_error {
 public: using std::runtime_error::runtime_error;
@@ -17,7 +12,6 @@ public: using std::runtime_error::runtime_error;
 
 inline void proto_write(int fd, const std::string& msg) {
     uint32_t len = (uint32_t)msg.size();
-    // write length
     size_t written = 0;
     const char* p = reinterpret_cast<const char*>(&len);
     while (written < sizeof(len)) {
@@ -25,7 +19,6 @@ inline void proto_write(int fd, const std::string& msg) {
         if (r<=0) throw ProtocolException("Write error (length)");
         written += r;
     }
-    // write payload
     written = 0;
     while (written < len) {
         ssize_t r = write(fd, msg.c_str()+written, len-written);
