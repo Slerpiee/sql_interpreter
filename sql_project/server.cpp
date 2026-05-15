@@ -1,13 +1,3 @@
-/*
- * server.cpp
- * SQL Server process.
- * Reads SQL queries from stdin (framed by Protocol), executes them,
- * and writes results back to stdout (framed).
- *
- * Architecture: single-client, co-located.
- * The server is spawned as a child process by the client.
- */
-
 #include "SQLServer.hpp"
 #include "Protocol.hpp"
 #include "ResultFormatter.hpp"
@@ -18,24 +8,22 @@
 int main() {
     SQLServer server;
 
-    // Redirect stdin/stdout for pipe IPC; stderr stays for logging
     int rfd = STDIN_FILENO;
     int wfd = STDOUT_FILENO;
 
-    std::cerr << "[Server] Started, PID=" << getpid() << "\n";
+    std::cerr << "Server Started, PID=" << getpid() << "\n";
 
     while (true) {
         std::string sql;
         try {
             sql = proto_read(rfd);
         } catch (const ProtocolException& e) {
-            // client closed the pipe – normal shutdown
-            std::cerr << "[Server] Client disconnected: " << e.what() << "\n";
+            std::cerr << "Server Client disconnected: " << e.what() << "\n";
             break;
         }
 
         if (sql == "\\quit") {
-            std::cerr << "[Server] Quit received.\n";
+            std::cerr << "Server Quit received.\n";
             break;
         }
 
@@ -58,11 +46,11 @@ int main() {
         try {
             proto_write(wfd, response);
         } catch (const ProtocolException& e) {
-            std::cerr << "[Server] Write failed: " << e.what() << "\n";
+            std::cerr << "Server Write failed: " << e.what() << "\n";
             break;
         }
     }
 
-    std::cerr << "[Server] Exiting.\n";
+    std::cerr << "Server Exiting\n";
     return 0;
 }
