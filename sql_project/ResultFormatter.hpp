@@ -7,10 +7,8 @@
 
 class ResultFormatter {
 public:
-    // Serialize ResultSet to a single string for transport
     static std::string serialize(const ResultSet& rs) {
         std::ostringstream oss;
-        // Format: STATUS\n  then COLS\n then ROWS\n then MSG\n then AFFECTED
         oss << "OK\n";
         oss << rs.columns.size() << "\n";
         for (auto& c : rs.columns) oss << c << "\n";
@@ -35,7 +33,6 @@ public:
         return "ERR\n" + msg + "\n";
     }
 
-    // Deserialize (client side) → bool ok, out message/rows
     static bool deserialize(const std::string& payload,
                             ResultSet& out, std::string& errMsg) {
         std::istringstream iss(payload);
