@@ -33,7 +33,7 @@ enum Errors {
 struct FieldDef {
     char fieldName[MaxFieldNameLen];
     enum FieldType type;
-    long len; /* for Text fields */
+    long len;
 };
 
 struct TableStruct {
@@ -89,4 +89,4 @@ char *getErrorString(enum Errors code);
 }
 #endif
 
-#endif /* _TABLE_H */
+#endif
