@@ -1,25 +1,3 @@
-/*
- * client.cpp
- * SQL Client.
- * Forks the server process, sets up pipes, and provides
- * an interactive REPL for the user.
- *
- * Supported SQL (passed verbatim to server):
- *   CREATE TABLE t (col1 LONG, col2 TEXT(32))
- *   DROP TABLE t
- *   INSERT INTO t (col1, col2) VALUES (42, 'hello')
- *   SELECT * FROM t [WHERE ...]
- *   SELECT col1, col2 FROM t [WHERE ...]
- *   UPDATE t SET col = val [WHERE ...]
- *   DELETE FROM t [WHERE ...]
- *
- *   WHERE supports:  =, <>, <, >, <=, >=, AND, OR, NOT, (...)
- *
- * Special commands (client-side):
- *   \quit   – exit
- *   \help   – show help
- */
-
 #include "Protocol.hpp"
 #include "ResultFormatter.hpp"
 #include <iostream>
@@ -29,9 +7,6 @@
 #include <sys/wait.h>
 #include <cstring>
 
-// ─────────────────────────────────────────────────────────────
-//  Pipe helpers
-// ─────────────────────────────────────────────────────────────
 struct PipePair { int r, w; };
 
 static PipePair make_pipe() {
@@ -40,13 +15,9 @@ static PipePair make_pipe() {
     return {fd[0], fd[1]};
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Client class
-// ─────────────────────────────────────────────────────────────
 class SQLClient {
 public:
     SQLClient() {
-        // Create two pipes: client→server and server→client
         PipePair toServer   = make_pipe();
         PipePair fromServer = make_pipe();
 
@@ -54,9 +25,6 @@ public:
         if (pid_ < 0) throw std::runtime_error("fork() failed");
 
         if (pid_ == 0) {
-            // ── Child: server process ──────────────────────
-            // stdin  ← toServer.r
-            // stdout → fromServer.w
             close(toServer.w);
             close(fromServer.r);
 
@@ -71,7 +39,6 @@ public:
             _exit(1);
         }
 
-        // ── Parent: client process ─────────────────────────
         close(toServer.r);
         close(fromServer.w);
         wfd_ = toServer.w;
@@ -85,7 +52,6 @@ public:
         waitpid(pid_, nullptr, 0);
     }
 
-    // Send SQL to server and return pretty-printed result (or error message)
     std::string query(const std::string& sql) {
         sendSQL(sql);
         std::string payload = proto_read(rfd_);
@@ -107,11 +73,8 @@ private:
     }
 };
 
-// ─────────────────────────────────────────────────────────────
-//  Help text
-// ─────────────────────────────────────────────────────────────
 static const char* HELP = R"(
-Model SQL Interpreter  –  supported statements:
+Model SQL Interpreter  тАУ  supported statements:
   CREATE TABLE <t> (<col> LONG | TEXT(<n>) [, ...])
   DROP TABLE <t>
   INSERT INTO <t> (<col>, ...) VALUES (<val>, ...)
@@ -128,13 +91,10 @@ String literals are quoted with single quotes: 'hello'
 Long literals are plain integers: 42
 
 Special client commands:
-  \help   – show this help
-  \quit   – exit
+  \help   тАУ show this help
+  \quit   тАУ exit
 )";
 
-// ─────────────────────────────────────────────────────────────
-//  main – interactive REPL
-// ─────────────────────────────────────────────────────────────
 int main() {
     std::cout << "Model SQL Client\n";
     std::cout << "Type \\help for syntax help, \\quit to exit.\n\n";
@@ -146,13 +106,11 @@ int main() {
         std::cout << (sql.empty() ? "sql> " : "  -> ");
         std::cout.flush();
 
-        if (!std::getline(std::cin, line)) break; // EOF
+        if (!std::getline(std::cin, line)) break;
 
-        // accumulate multi-line input until semicolon
         if (!sql.empty()) sql += " ";
         sql += line;
 
-        // check for special client commands (single-line)
         {
             std::string trimmed = sql;
             while (!trimmed.empty() && std::isspace((unsigned char)trimmed.back())) trimmed.pop_back();
@@ -160,13 +118,11 @@ int main() {
             if (trimmed == "\\help") { std::cout << HELP; sql.clear(); continue; }
         }
 
-        // if no semicolon yet, wait for more input
         if (sql.find(';') == std::string::npos &&
             sql.find("\\quit") == std::string::npos) {
             continue;
         }
 
-        // strip trailing semicolon and whitespace
         while (!sql.empty() && (sql.back()==';'||std::isspace((unsigned char)sql.back())))
             sql.pop_back();
 
