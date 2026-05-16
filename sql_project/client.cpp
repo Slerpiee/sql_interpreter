@@ -59,7 +59,7 @@ public:
         ResultSet rs;
         std::string errMsg;
         if (!ResultFormatter::deserialize(payload, rs, errMsg)) {
-            return "\033[31mERROR: " + errMsg + "\033[0m\n";
+            return "ERROR: " + errMsg + "\n";
         }
         return ResultFormatter::prettyPrint(rs);
     }
